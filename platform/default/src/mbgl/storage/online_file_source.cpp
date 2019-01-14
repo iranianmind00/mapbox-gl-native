@@ -170,7 +170,15 @@ public:
 private:
 
     void networkIsReachableAgain() {
-        for (auto& request : allRequests) {
+        // Notify requests about network reachability in order of their priority.
+        std::vector<decltype(allRequests)::value_type> requests;
+        requests.reserve(allRequests.size());
+        requests.insert(requests.end(), allRequests.begin(), allRequests.end());
+        std::sort(requests.begin(), requests.end(), [](auto& a, auto&) {
+            return a->resource.priority == Resource::Priority::Regular;
+        });
+
+        for (auto& request : requests) {
             request->networkIsReachableAgain();
         }
     }
